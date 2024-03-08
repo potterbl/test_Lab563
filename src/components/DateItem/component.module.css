@@ -1,0 +1,120 @@
+.day_item{
+    box-shadow: inset 0 0 1px 1px black;
+    background-color: #d0d0d0;
+    border-radius: 16px;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 100%;
+    max-height: 100%;
+    grid-template-rows: 18px calc(100% - 18px - 34px) 34px;
+    overflow: auto;
+}
+.day_label{
+    height: fit-content;
+}
+.day_empty{
+    background-color: transparent;
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+.tasks{
+    width: 100%;
+    max-height: 100%;
+    height: fit-content;
+    overflow: auto;
+    display: grid;
+    row-gap: 4px;
+    grid-template-columns: 100%;
+    position: relative;
+}
+.tasks::-webkit-scrollbar{
+    background-color: transparent;
+    width: 4px;
+}
+.tasks::-webkit-scrollbar-thumb{
+    background-color: #afafaf;
+}
+.input_wrapper{
+    display: grid;
+    grid-template-columns: auto 28px;
+    column-gap: 4px;
+}
+.input{
+    width: 100%;
+    height: 24px;
+    outline: none;
+    padding: 0 8px;
+}
+.btn{
+    border-radius: 8px;
+    width: max-content;
+    height: max-content;
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+.btn_cancel{
+    border-radius: 4px;
+    width: max-content;
+    height: max-content;
+    padding: 4px 8px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+.task{
+    width: 100%;
+    height: fit-content;
+    padding: 8px 16px;
+    background-color: #fff;
+    border-radius: 4px;
+    display: grid;
+    row-gap: 4px;
+    column-gap: 2px;
+}
+.task input{
+    margin: 2px 0;
+}
+.task textarea{
+    width: 100%;
+    height: fit-content;
+    word-break: break-word;
+    resize: none;
+    border: 0;
+    background-color: transparent;
+}
+.task_head{
+    width: 50%;
+    height: 14px;
+    border-radius: 4px;
+}
+.task_body{
+    display: grid;
+    align-items: flex-start;
+    grid-template-columns: 13px calc(100% - 13px);
+    column-gap: 4px;
+}
+.holiday{
+    width: 100%;
+    height: fit-content;
+    padding: 8px 16px;
+    background-color: #fff;
+    border-radius: 4px;
+    display: grid;
+    row-gap: 4px;
+    column-gap: 2px;
+}
+.holiday_body{
+    display: grid;
+    align-items: flex-start;
+}
+.holiday_body p{
+    width: 100%;
+}
+.color_label{
+    width: 50px;
+}
+.color{
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+
+}
