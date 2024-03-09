@@ -9,9 +9,9 @@ const DateItem = ({ day }: { day: Day }) => {
     const dispatch = useDispatch()
 
     const [newTask, setNewTask] = useState<string | undefined>(undefined);
-    const [color, setColor] = useState<any>(null)
+    const [color, setColor] = useState<string | null>(null)
 
-    const {currentMonth, currentYear, currentMonthHolidays} = useSelector((state: RootState) => state.calendar)
+    const {currentMonth, currentYear, currentMonthHolidays, searchParams, colorParams} = useSelector((state: RootState) => state.calendar)
 
     const handleClick = () => {
         setNewTask(prevState => {
@@ -25,37 +25,59 @@ const DateItem = ({ day }: { day: Day }) => {
     };
 
     const handleCreate = () => {
-        if(color === null) {
-            setColor("#ffffff")
-        } else {
-            dispatch(tasksActions.createTask({
-                day: day.value,
-                monthIndex: currentMonth.value,
-                year: currentYear,
-                color: color,
-                text: newTask,
-                isCompleted: false
-            }))
+        const newColor = color !== null && color !== "" ? color : "#000000";
 
-            setColor(null)
-            setNewTask(undefined)
+        if(color !== null){
+            dispatch(tasksActions.createTask({
+                task: {
+                    day: day.value,
+                    monthIndex: currentMonth.value,
+                    year: currentYear,
+                    text: newTask || "",
+                    isCompleted: false
+                },
+                colorInput: newColor
+            }));
+
+            setColor(null);
+            setNewTask(undefined);
+        } else {
+            setColor("")
         }
-    }
+    };
 
     const allTasks = useSelector((state: RootState) => state.tasks.tasks)
 
     const [filteredTasks, setFilteredTasks] = useState<task[]>([]);
 
     useEffect(() => {
-        const filtered = allTasks.filter(task => (
-            task.day === day.value &&
-            task.monthIndex === currentMonth.value &&
-            task.year === currentYear
-        ));
-        setFilteredTasks(filtered);
-    }, [allTasks, day.value, currentMonth.value, currentYear]);
+        if (searchParams !== "") {
+            const textFiltered = allTasks.filter((task) =>
+                task?.text?.match(new RegExp(searchParams, "i")) &&
+                task.day === day.value &&
+                task.monthIndex === currentMonth.value &&
+                task.year === currentYear
+            );
+            setFilteredTasks(textFiltered);
+        } else if (colorParams !== "") {
+            const textFiltered = allTasks.filter((task) =>
+                task?.color?.includes(colorParams) &&
+                task.day === day.value &&
+                task.monthIndex === currentMonth.value &&
+                task.year === currentYear
+            );
+            setFilteredTasks(textFiltered);
+        } else {
+            const dateFiltered = allTasks.filter(
+                (task) =>
+                    task.day === day.value &&
+                    task.monthIndex === currentMonth.value &&
+                    task.year === currentYear
+            );
+            setFilteredTasks(dateFiltered);
+        }
+    }, [allTasks, day.value, currentMonth.value, currentYear, searchParams, colorParams]);
 
-    // TODO: можно сделать обход поставив в редакс айдишку текущего драга
 
     const handleDrag = (e: React.DragEvent, taskId: number | undefined) => {
         if (taskId !== undefined) {
@@ -85,6 +107,17 @@ const DateItem = ({ day }: { day: Day }) => {
         }
     };
 
+    const handleAddColor = (id?: number) => {
+        if(id){
+            dispatch(tasksActions.changeTask({
+                task: {
+                    id: id
+                },
+                colorInput: "#000"
+            }))
+        }
+    }
+
     return (
         <>
             {
@@ -111,7 +144,7 @@ const DateItem = ({ day }: { day: Day }) => {
                                                 </div>
                                             );
                                         }
-                                        return null; // Return null for the map function if the condition is not met
+                                        return null;
                                     })}
                                 </>
                             )}
@@ -128,7 +161,7 @@ const DateItem = ({ day }: { day: Day }) => {
                                                    onChange={e => {
                                                        setColor(e.target.value)
                                                    }}
-                                                   defaultValue={color}
+                                                   defaultValue={"#000"}
                                                    className={styles.input} type="color"
                                             />
                                     }
@@ -145,16 +178,38 @@ const DateItem = ({ day }: { day: Day }) => {
                                         onDrag={(e) => handleDrag(e, t.id)}
                                     >
                                         <div className={styles.task_head}>
-                                            <label className={styles.color_label} style={{backgroundColor: t.color}}>
-                                                <input className={styles.color} type="color" value={t.color} onChange={e => dispatch(tasksActions.changeTask({id: t.id, color: e.target.value}))}/>
-                                            </label>
+                                            {
+                                                t.color?.map((c, index) => (
+                                                    <label key={index} className={styles.color_label}
+                                                           style={{backgroundColor: c}}>
+                                                        <input
+                                                            className={styles.color}
+                                                            type="color"
+                                                            value={c}
+                                                            onChange={e => dispatch(tasksActions.changeTask({
+                                                                task: {
+                                                                    id: t.id,
+                                                                },
+                                                                colorInput: e.target.value,
+                                                                colorIndex: index
+                                                            }))}
+                                                        />
+                                                    </label>
+                                                ))
+                                            }
+                                            <button className={styles.button_add_color} onClick={() => handleAddColor(t.id)}>+</button>
                                         </div>
                                         <div className={styles.task_body}>
                                             <input type="checkbox" checked={t.isCompleted}
-                                                   onChange={e => dispatch(tasksActions.toggleTask({id: t.id, isCompleted: !t.isCompleted}))}/>
+                                                   onChange={() => dispatch(tasksActions.toggleTask({
+                                                       id: t.id,
+                                                       isCompleted: !t.isCompleted
+                                                   }))}/>
                                             <textarea onChange={e => dispatch(tasksActions.changeTask({
-                                                id: t.id,
-                                                text: e.target.value
+                                                task: {
+                                                    id: t.id,
+                                                    text: e.target.value
+                                                }
                                             }))}>{t.text}</textarea>
                                         </div>
                                     </div>

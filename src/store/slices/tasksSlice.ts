@@ -7,7 +7,7 @@ function generateRandomNumericId() {
 export interface task {
     id?: number,
     text?: string,
-    color?: string,
+    color?: string[],
     day?: number,
     monthIndex?: number,
     year?: number,
@@ -28,18 +28,20 @@ export const tasksSlice = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
-        createTask: (state, actions: {payload: task}) => {
-            const taskPayload = actions.payload
+        createTask: (state, actions: { payload: { task: task, colorInput: string } }) => {
+            const { task, colorInput} = actions.payload
 
             const newTask: task = {
                 id: generateRandomNumericId(),
-                text: taskPayload.text,
-                color: taskPayload.color,
-                day: taskPayload.day,
-                monthIndex: taskPayload.monthIndex,
-                year: taskPayload.year,
-                isCompleted: taskPayload.isCompleted
+                text: task.text,
+                color: [],
+                day: task.day,
+                monthIndex: task.monthIndex,
+                year: task.year,
+                isCompleted: task.isCompleted
             }
+
+            newTask.color?.push(colorInput)
 
             state.tasks.push(newTask)
         },
@@ -71,24 +73,36 @@ export const tasksSlice = createSlice({
                 task.id === taskId ? { ...task, isCompleted: actions.payload.isCompleted } : task
             );
         },
-        changeTask: (state, action: { payload: task }) => {
-            const taskPayload = action.payload;
+        changeTask: (state, action: { payload: { task: task, colorInput?: string, colorIndex?: number } }) => {
+            const { task, colorInput, colorIndex } = action.payload;
 
-            console.log(taskPayload)
+            state.tasks = state.tasks.map((currentTask: task) => {
+                if (currentTask.id === task.id) {
 
-            state.tasks = state.tasks.map(task =>
-                task.id === taskPayload.id
-                    ? {
-                        ...task,
-                        text: taskPayload.text !== undefined ? taskPayload.text : task.text,
-                        color: taskPayload.color !== undefined ? taskPayload.color : task.color,
-                        isCompleted: taskPayload.isCompleted !== undefined ? taskPayload.isCompleted : task.isCompleted
+                    if (colorIndex !== undefined && currentTask.color && currentTask.color[colorIndex]) {
+                        currentTask.color[colorIndex] = colorInput !== undefined ? colorInput : "";
+                    } else if(colorInput) {
+                        if (!currentTask.color) {
+                            currentTask.color = [];
+                        }
+                        currentTask.color.push(colorInput);
                     }
-                    : task
-            );
+
+                    return {
+                        ...currentTask,
+                        text: task.text !== undefined ? task.text : currentTask.text,
+                        isCompleted: task.isCompleted !== undefined ? task.isCompleted : currentTask.isCompleted
+                    };
+                }
+
+                return currentTask;
+            });
         },
         setDrag: (state, actions: {payload: number | null}) => {
             state.currentDrag = actions.payload
+        },
+        setByJSON: (state, actions) => {
+            state.tasks = actions.payload
         }
     }
 })

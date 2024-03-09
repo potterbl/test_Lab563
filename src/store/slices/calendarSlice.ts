@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 type Month = { value: number; label: string };
 export type Day = { value: number; label: string };
 
-type HolidaysData = {
+export type HolidaysData = {
     date: string,
     localName: string | null,
     name: string | null,
@@ -77,7 +77,9 @@ interface calendarState {
     months: Month[];
     days: Day[];
     holidaysForYear: HolidaysData[] | null;
-    currentMonthHolidays: HolidaysData[] | null
+    currentMonthHolidays: HolidaysData[] | null,
+    searchParams: string,
+    colorParams: string
 }
 
 const initialState: calendarState = {
@@ -86,7 +88,9 @@ const initialState: calendarState = {
     months: createMonthList(),
     days: createDayList(new Date().getFullYear(), new Date().getMonth()),
     holidaysForYear: null,
-    currentMonthHolidays: null
+    currentMonthHolidays: null,
+    searchParams: "",
+    colorParams: ""
 }
 
 export const calendarSlice = createSlice({
@@ -107,7 +111,7 @@ export const calendarSlice = createSlice({
 
             state.currentMonthHolidays = state.holidaysForYear !== null
                 ? state.holidaysForYear.filter((holiday) => {
-                    const holidayMonth = new Date(holiday.date).getMonth() + 1;
+                    const holidayMonth = new Date(holiday.date).getMonth();
                     return holidayMonth === state.currentMonth.value;
                 })
                 : null;
@@ -135,7 +139,7 @@ export const calendarSlice = createSlice({
 
             state.currentMonthHolidays = state.holidaysForYear !== null
                 ? state.holidaysForYear.filter((holiday) => {
-                    const holidayMonth = new Date(holiday.date).getMonth() + 1;
+                    const holidayMonth = new Date(holiday.date).getMonth();
                     return holidayMonth === state.currentMonth.value;
                 })
                 : null;
@@ -149,6 +153,22 @@ export const calendarSlice = createSlice({
                 }
             });
         },
+        setSearchParams: (state, actions) => {
+            state.searchParams = actions.payload
+        },
+        setColorParams: (state, actions) => {
+            state.colorParams = actions.payload
+        },
+        setByJSON: (state, actions) => {
+            const {currentYear, months, days, holidaysForYear, currentMonthHolidays} = actions.payload
+
+            state.currentMonth = {value: 0, label: new Date(currentYear, 0).toLocaleString('default', { month: 'long' })}
+            state.currentYear = currentYear
+            state.months = months
+            state.days = days
+            state.holidaysForYear = holidaysForYear
+            state.currentMonthHolidays = currentMonthHolidays
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchData.fulfilled, (state, action) => {

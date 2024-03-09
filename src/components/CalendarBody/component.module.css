@@ -8,6 +8,9 @@
     margin-bottom: 12px;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    height: fit-content;
+    column-gap: 12px;
 }
 .btn{
     padding: 4px 8px;
@@ -15,6 +18,13 @@
     border: 1px solid #d0d0d0;
     border-radius: 0;
     cursor: pointer;
+}
+.input{
+    height: 25px;
+    width: 300px;
+    padding: 0 14px;
+    border: 1px solid #afafaf;
+    outline: none;
 }
 .days{
     display: grid;
@@ -44,4 +54,25 @@
 .day{
     font-weight: bold;
     height: max-content;
+}
+.flex{
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+.flex label{
+
+}
+.flex label input[type="color"]{
+    opacity: 0;
+}
+.file{
+    display: none;
+}
+.labelFile{
+    padding: 2px 8px;
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 0;
+    cursor: pointer;
 }
